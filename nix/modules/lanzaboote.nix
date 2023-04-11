@@ -114,6 +114,17 @@ in
       '';
     };
 
+    system.activationScripts.boot-loader-entries = ''
+      rm -rf /run/boot-loader-entries
+      mkdir -p /run/boot-loader-entries
+
+      ${cfg.package}/bin/lzbt create-loader-entries \
+        --systemd-boot-loader-config ${loaderConfigFile} \
+        ${config.boot.loader.efi.efiSysMountPoint} \
+        /run/boot-loader-entries \
+        /nix/var/nix/profiles/system-*-link
+    '';
+
     systemd.services.fwupd = lib.mkIf config.services.fwupd.enable {
       # Tell fwupd to load its efi files from /run
       environment.FWUPD_EFIAPPDIR = "/run/fwupd-efi";

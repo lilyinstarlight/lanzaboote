@@ -4,6 +4,7 @@ use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
 
 use crate::install;
+use crate::loader;
 use crate::signature::KeyPair;
 
 /// The default log level.
@@ -26,6 +27,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Install(InstallCommand),
+    CreateLoaderEntries(CreateLoaderEntriesCommand),
 }
 
 #[derive(Parser)]
@@ -57,6 +59,22 @@ struct InstallCommand {
     generations: Vec<PathBuf>,
 }
 
+#[derive(Parser)]
+struct CreateLoaderEntriesCommand {
+    /// Systemd-boot loader config
+    #[arg(long)]
+    systemd_boot_loader_config: PathBuf,
+
+    /// EFI system partition mountpoint (e.g. efiSysMountPoint)
+    esp: PathBuf,
+
+    /// Fake EFI system partition directory (e.g. /run/boot-loader-entries)
+    boot_loader_entries: PathBuf,
+
+    /// List of generation links (e.g. /nix/var/nix/profiles/system-*-link)
+    generations: Vec<PathBuf>,
+}
+
 impl Cli {
     pub fn call(self, module: &str) {
         stderrlog::new()
@@ -78,6 +96,7 @@ impl Commands {
     pub fn call(self) -> Result<()> {
         match self {
             Commands::Install(args) => install(args),
+            Commands::CreateLoaderEntries(args) => create_loader_entries(args),
         }
     }
 }
@@ -98,4 +117,14 @@ fn install(args: InstallCommand) -> Result<()> {
         args.generations,
     )
     .install()
+}
+
+fn create_loader_entries(args: CreateLoaderEntriesCommand) -> Result<()> {
+    loader::LoaderEntries::new(
+        args.systemd_boot_loader_config,
+        args.esp,
+        args.boot_loader_entries,
+        args.generations,
+    )
+    .create()
 }

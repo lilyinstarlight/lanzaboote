@@ -3,6 +3,7 @@ mod esp;
 mod gc;
 mod generation;
 mod install;
+mod loader;
 mod os_release;
 mod pe;
 mod signature;

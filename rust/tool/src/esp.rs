@@ -16,6 +16,7 @@ pub struct EspPaths {
     pub systemd: PathBuf,
     pub systemd_boot: PathBuf,
     pub loader: PathBuf,
+    pub loader_entries: PathBuf,
     pub systemd_boot_loader_config: PathBuf,
 }
 
@@ -28,6 +29,7 @@ impl EspPaths {
         let efi_systemd = efi.join("systemd");
         let efi_efi_fallback_dir = efi.join("BOOT");
         let loader = esp.join("loader");
+        let loader_entries = loader.join("entries");
         let systemd_boot_loader_config = loader.join("loader.conf");
 
         Self {
@@ -40,12 +42,13 @@ impl EspPaths {
             systemd: efi_systemd.clone(),
             systemd_boot: efi_systemd.join("systemd-bootx64.efi"),
             loader,
+            loader_entries,
             systemd_boot_loader_config,
         }
     }
 
     /// Return the used file paths to store as garbage collection roots.
-    pub fn to_iter(&self) -> IntoIter<&PathBuf, 10> {
+    pub fn to_iter(&self) -> IntoIter<&PathBuf, 11> {
         [
             &self.esp,
             &self.efi,
@@ -56,6 +59,7 @@ impl EspPaths {
             &self.systemd,
             &self.systemd_boot,
             &self.loader,
+            &self.loader_entries,
             &self.systemd_boot_loader_config,
         ]
         .into_iter()
